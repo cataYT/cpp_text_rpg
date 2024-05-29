@@ -14,7 +14,7 @@ public:
 	int health;
 	Player(std::string plrName, int health, std::unordered_map<std::string, int> weapons);
 	void getStats() const;
-	static int getTotalPlayers();
+	static size_t getTotalPlayers();
 	void updateWeapons(std::string type, std::pair<std::string, int> value);
 	void attack(Player &target, std::string weaponName);
 	void heal(Player &target, int amount);

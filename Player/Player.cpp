@@ -35,7 +35,7 @@ void Player::getStats() const {
     std::cout << "----STATS END----" << std::endl;
 }
 
-int Player::getTotalPlayers() {
+size_t Player::getTotalPlayers() {
     return players.size();
 }
 
@@ -100,7 +100,7 @@ Player* Player::checkWin() {
     if (players.size() == 1) {
         return players[0];
     } else {
-        return NULL;
+        return nullptr;
     }
 }
 

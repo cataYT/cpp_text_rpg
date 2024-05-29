@@ -3,6 +3,7 @@
 #include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 
 #include "Player.hpp"
 #include "PlayerExceptions.hpp"
@@ -40,20 +41,21 @@ int main() {
 
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	std::unordered_map<std::string, int> weapons;
-	weapons[weaponName] = *weaponDamageIntPtr;
+	std::unordered_map<std::string, int> playerWeapons;
+	playerWeapons[weaponName] = *weaponDamageIntPtr;
 	delete weaponDamageIntPtr;
-	Player* cata = new Player(playerName, 100, weapons);
+	std::unique_ptr<Player> cata = std::make_unique<Player>(playerName, 100, playerWeapons);
 
 	// cata->updateWeapons("add", {"Chain of Thousand Miles", 100});
 
-	Player* enemy = new Player("Enemy", 50, { {"Sword", 10} });
+	std::unordered_map<std::string, int> enemyWeapons;
+	enemyWeapons["Sword"] = 10;
+	std::unique_ptr<Player> enemy = std::make_unique<Player>("Enemy", 50, enemyWeapons);
 
 	try {
 		enemy->attack(*cata, "Sword");
 		if (cata->health == 0) {
-			delete cata;
-			cata = nullptr;
+			cata.reset();
 		}
 	}
 	catch (PlayerExceptions::weapon_not_found& e) {
@@ -67,23 +69,17 @@ int main() {
 	try {
 		cata->attack(*enemy, weaponUse);
 		if (enemy->health == 0) {
-			delete enemy;
-			enemy = nullptr;
+			enemy.reset();
 		}
 	} catch (PlayerExceptions::weapon_not_found& e) {
 		std::cout << "Caught exception on attack: " << e.what() << std::endl;
 	}
-
+	
 	Player* winner = Player::checkWin();
-	std::cout << winner->plrName << " has won!" << std::endl;
-
-	if (cata != nullptr) {
-		delete cata;
-		cata = nullptr;
-	}
-	if (enemy != nullptr) {
-		delete enemy;
-		enemy = nullptr;
+	if (winner != nullptr) {
+		std::cout << winner->plrName << " has won!" << std::endl;
+	} else {
+		std::cout << "No one won!" << std::endl;
 	}
 
 	std::chrono::steady_clock::time_point endTime = std::chrono::high_resolution_clock::now();
