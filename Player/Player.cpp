@@ -7,20 +7,22 @@
 #include <stdexcept>
 #include <algorithm>
 
+#include "Armor.hpp"
 
 std::string PlayerExceptions::_msg = "";
 std::vector<Player*> Player::players = {};
 
-Player::Player(std::string plrName, int health, std::unordered_map<std::string, int> weapons) {
-    this->plrName = plrName;
-    if (health > 0) {
-        this->health = health;
-    } else {
-        throw std::invalid_argument("Health must be greater than 0");
-    }
-    this->weapons = weapons;
-    for (const std::pair<std::string, int> &weapon : weapons) {
-        std::cout << "Created class Player with the attributes: " << plrName << ", " << health << ", " << weapon.first << " : " << weapon.second << std::endl;
+Player::Player(std::string plrName, int health, std::unordered_map<std::string, int> weapons, Armor armor) :
+    plrName(plrName),
+    health(health > 0 ? health : throw std::invalid_argument("Health must be greater than 0")),
+    weapons(weapons),
+    currentArmor(armor),
+    isWearingArmor(!(armor == Armor("", 0, 1, 0))) 
+
+{
+    for (const auto& weapon : weapons) {
+        std::cout << "Created class Player with the attributes: " << plrName << ", " << health << ", "
+            << weapon.first << " : " << weapon.second << std::endl;
     }
     players.push_back(this);
 }
@@ -63,7 +65,7 @@ void Player::attack(Player& target, std::string weaponName) {
         std::unordered_map<std::string, int>::iterator it = weapons.find(weaponName);
         if (it != weapons.end()) {
             if (it->second > 0) {
-                target.health -= it->second;
+                target.health -= it->second / target.currentArmor.getResistance();
                 std::cout << "Dealt " << it->second << " damage by " << plrName << " to " << target.plrName << " using \"" << weaponName << "\"" << std::endl;
                 if (target.health < 0) {
                     int actualHealth = target.health;
@@ -96,6 +98,15 @@ void Player::heal(Player& target, int amount) {
     }
 }
 
+void Player::equipArmor(Armor armor) {
+    if (!isWearingArmor) {
+        currentArmor = armor;
+        isWearingArmor = true;
+    } else {
+        std::cout << plrName << " is already wearing armor" << std::endl;
+    }
+}
+
 Player* Player::checkWin() {
     if (players.size() == 1) {
         return players[0];
@@ -108,10 +119,11 @@ Player Player::operator+(const Player &other) const {
     std::string newName = this->plrName + ":" + other.plrName;
     int newHealth = this->health + other.health;
     std::unordered_map<std::string, int> newWeapons = this->weapons;
+    Armor newArmor = this->currentArmor + other.currentArmor;
     for (const auto& pair : other.weapons) {
         newWeapons[pair.first] = pair.second;
     }
-    return Player(newName, newHealth, newWeapons);
+    return Player(newName, newHealth, newWeapons, newArmor);
 }
 
 Player::~Player() {

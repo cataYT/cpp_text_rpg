@@ -44,13 +44,14 @@ int main() {
 	std::unordered_map<std::string, int> playerWeapons;
 	playerWeapons[weaponName] = *weaponDamageIntPtr;
 	delete weaponDamageIntPtr;
-	std::unique_ptr<Player> cata = std::make_unique<Player>(playerName, 100, playerWeapons);
+	Armor basicArmor = Armor("BASIC", 10, 100, 1);
+	std::unique_ptr<Player> cata = std::make_unique<Player>(playerName, 100, playerWeapons, basicArmor);
 
 	// cata->updateWeapons("add", {"Chain of Thousand Miles", 100});
 
 	std::unordered_map<std::string, int> enemyWeapons;
 	enemyWeapons["Sword"] = 10;
-	std::unique_ptr<Player> enemy = std::make_unique<Player>("Enemy", 50, enemyWeapons);
+	std::unique_ptr<Player> enemy = std::make_unique<Player>("Enemy", 50, enemyWeapons, basicArmor);
 
 	try {
 		enemy->attack(*cata, "Sword");

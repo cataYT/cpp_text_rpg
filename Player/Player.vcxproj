@@ -135,8 +135,10 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="PlayerExceptions.cpp" />
+    <ClCompile Include="Armor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Armor.hpp" />
     <ClInclude Include="Player.hpp" />
     <ClInclude Include="PlayerExceptions.hpp" />
   </ItemGroup>
