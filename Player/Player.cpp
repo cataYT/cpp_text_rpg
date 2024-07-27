@@ -1,18 +1,12 @@
 #include "Player.hpp"
 #include "PlayerExceptions.hpp"
 
-#include <sstream>
-#include <iostream>
-#include <unordered_map>
-#include <stdexcept>
-#include <algorithm>
-
 #include "Armor.hpp"
 
-std::string PlayerExceptions::_msg = "";
+const char* PlayerExceptions::_msg = "";
 std::vector<Player*> Player::players = {};
 
-Player::Player(std::string plrName, int health, std::unordered_map<std::string, int> weapons, Armor armor) :
+Player::Player(const char* plrName, int health, std::unordered_map<std::string, int> weapons, Armor armor) :
     plrName(plrName),
     health(health > 0 ? health : throw std::invalid_argument("Health must be greater than 0")),
     weapons(weapons),
@@ -21,19 +15,26 @@ Player::Player(std::string plrName, int health, std::unordered_map<std::string, 
 
 {
     for (const auto& weapon : weapons) {
-        std::cout << "Created class Player with the attributes: " << plrName << ", " << health << ", "
+        std::cout << "Created class Player with the attributes: " << this->plrName << ", " << this->health << ", "
             << weapon.first << " : " << weapon.second << std::endl;
     }
     players.push_back(this);
 }
 
+void Player::removePlayer(Player* player) {
+    auto it = std::remove(players.begin(), players.end(), player);
+    if (it != players.end()) {
+        players.erase(it, players.end());
+    }
+}
+
 void Player::getStats() const {
-    std::cout << "----GETTING STATS FOR " << plrName << "----" << std::endl;
-    std::cout << "Name: " << plrName << ", Health: " << health << ", Weapons:\n\n";
-    for (std::pair<std::string, int> pair : weapons) {
+    std::cout << "----GETTING STATS FOR " << this->plrName << "----" << std::endl;
+    std::cout << "Name: " << this->plrName << ", Health: " << this->health << ", Weapons:\n\n";
+    for (std::pair<std::string, int> pair : this->weapons) {
         std::cout << pair.first << " : " << pair.second << std::endl;
     }
-    std::cout << "\nTotal weapons count: " << weapons.size() << std::endl;
+    std::cout << "\nTotal weapons count: " << this->weapons.size() << std::endl;
     std::cout << "----STATS END----" << std::endl;
 }
 
@@ -41,91 +42,114 @@ size_t Player::getTotalPlayers() {
     return players.size();
 }
 
-void Player::updateWeapons(std::string type, std::pair<std::string, int> value) {
+void Player::updateWeapons(const char* type, std::pair<std::string, int> &value) {
+    std::string first = value.first;
+    int second = value.second;
     if (type == "add") {
-        weapons.insert(value);
-        std::cout << "Added \"" << value.first << "\" to weapons with damage " << value.second << " to the player " << plrName << std::endl;
+        this->weapons.insert(value);
+        std::cout << "Added \"" << first << "\" to weapons with damage " << second << " to the player " << this->plrName << std::endl;
     } else if (type == "remove") {
-        if (weapons.find(value.first) != weapons.end()) {
-            weapons.erase(value.first);
-            std::cout << "Removed \"" << value.first << "\" from weapons from the player " << plrName << std::endl;
+        if (this->weapons.find(first) != weapons.end()) {
+            this->weapons.erase(first);
+            std::cout << "Removed \"" << first << "\" from weapons from the player " << this->plrName << std::endl;
         }
         else {
             std::stringstream eMessage;
-            eMessage << "There is no \"" << value.first << "\" to remove from the weapons";
-            throw PlayerExceptions::weapon_not_found(eMessage.str());
+            eMessage << "There is no \"" << first << "\" to remove from the weapons";
+            throw PlayerExceptions::weapon_not_found(eMessage.str().c_str());
         }
     } else {
         throw std::invalid_argument("Invalid type, type can only be 'add' or 'remove'");
     }
 }
 
+double crit(int &weaponDmg, int &armorResistance) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(1, 4);
+
+    int random_number = distr(gen);
+    double damage = 0;
+    if (random_number == 1) {
+        damage = (weaponDmg / armorResistance) * 1.5;
+    } else {
+        damage = weaponDmg / armorResistance;
+    }
+    return damage;
+}
+
 void Player::attack(Player& target, std::string weaponName) {
     if (target.health > 0) {
-        std::unordered_map<std::string, int>::iterator it = weapons.find(weaponName);
-        if (it != weapons.end()) {
-            if (it->second > 0) {
-                target.health -= it->second / target.currentArmor.getResistance();
-                std::cout << "Dealt " << it->second << " damage by " << plrName << " to " << target.plrName << " using \"" << weaponName << "\"" << std::endl;
+        auto it = this->weapons.find(weaponName);
+        if (it != this->weapons.end()) {
+            int weaponDmg = it->second;
+            if (weaponDmg > 0) {
+                int armorResistance = target.currentArmor.getResistance();
+                double damage = crit(weaponDmg, armorResistance);
+                target.health -= static_cast<int>(damage);
                 if (target.health < 0) {
-                    int actualHealth = target.health;
                     target.health = 0;
-                    std::cout << target.plrName << " is defeated by " << plrName << " using " << "\"" << weaponName << "\"" << std::endl;
+                }
+                std::cout << "Dealt " << weaponDmg << " damage to " << target.plrName << " using \"" << weaponName << "\"" << std::endl;
+                if (target.health == 0) {
+                    std::cout << target.plrName << " is defeated by " << this->plrName << " using \"" << weaponName << "\"" << std::endl;
+                    removePlayer(&target); // Remove the defeated player
                 }
                 std::cout << "New health of " << target.plrName << ": " << target.health << std::endl;
-            } else {
-                std::stringstream eMessage;
-                eMessage << "Weapon: \"" << weaponName << "\" has negative damage";
-                throw std::invalid_argument(eMessage.str());
             }
-        } else {
-            std::stringstream eMessage;
-            eMessage << "Weapon \"" << weaponName << "\" not found in weapons";
-            throw PlayerExceptions::weapon_not_found(eMessage.str());
+            else {
+                std::cerr << "Weapon: \"" << weaponName << "\" has negative damage" << std::endl;
+            }
         }
-    } else {
+        else {
+            std::cerr << "Weapon \"" << weaponName << "\" not found in weapons" << std::endl;
+        }
+    }
+    else {
         std::cout << target.plrName << " is already defeated and cannot be attacked" << std::endl;
     }
 }
 
-void Player::heal(Player& target, int amount) {
+
+void Player::heal(Player& target, int &amount) {
+    std::string name = target.plrName;
+    int health = target.health;
     if (amount > 0) {
-        target.health += amount;
-        std::cout << target.plrName << " healed by: " << amount << std::endl;
-        std::cout << "New health of " << target.plrName << ": " << target.health << std::endl;
+        health += amount;
+        std::cout << name << " healed by: " << amount << std::endl;
+        std::cout << "New health of " << name << ": " << health << std::endl;
     } else {
         throw std::invalid_argument("Amount cannot be negative");
     }
 }
 
-void Player::equipArmor(Armor armor) {
+void Player::equipArmor(Armor &armor) {
     if (!isWearingArmor) {
-        currentArmor = armor;
-        isWearingArmor = true;
+        this->currentArmor = armor;
+        this->isWearingArmor = true;
     } else {
-        std::cout << plrName << " is already wearing armor" << std::endl;
+        std::cout << this->plrName << " is already wearing armor" << std::endl;
     }
 }
 
-Player* Player::checkWin() {
+Player* Player::getWinner() {
     if (players.size() == 1) {
         return players[0];
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 
 Player Player::operator+(const Player &other) const {
-    std::string newName = this->plrName + ":" + other.plrName;
+    std::string newName = std::string(this->plrName) + ":" + other.plrName;
     int newHealth = this->health + other.health;
     std::unordered_map<std::string, int> newWeapons = this->weapons;
     Armor newArmor = this->currentArmor + other.currentArmor;
     for (const auto& pair : other.weapons) {
         newWeapons[pair.first] = pair.second;
     }
-    return Player(newName, newHealth, newWeapons, newArmor);
+    return Player(newName.c_str(), newHealth, newWeapons, newArmor);
 }
 
 Player::~Player() {
-    players.erase(std::remove(players.begin(), players.end(), this), players.end());
+    removePlayer(this); // Ensure player is removed from the list upon destruction
 }

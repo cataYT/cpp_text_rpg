@@ -1,6 +1,6 @@
 #include "Armor.hpp"
 
-Armor::Armor(std::string armorName = "", int hp = 0, int maxHp = 1, int resistanceForce = 0) :
+Armor::Armor(const char* armorName = "", int hp = 0, int maxHp = 1, int resistanceForce = 0) :
 	armorName(armorName),
 	hp(hp),
 	maxHp(maxHp),
@@ -24,28 +24,28 @@ Armor::Armor(std::string armorName = "", int hp = 0, int maxHp = 1, int resistan
 	}
 }
 
-void Armor::enhanceArmor(int newResistanceForce) {
+void Armor::enhanceArmor(int &newResistanceForce) {
 	if (newResistanceForce > 0) {
-		resistanceForce += newResistanceForce;
+		this->resistanceForce += newResistanceForce;
 	} else {
 		std::cout << "Armor cannot be enhanced with negative trait" << std::endl;
 	}
 }
 
 int Armor::checkHP() const {
-	return hp;
+	return this->hp;
 }
 
 int Armor::getResistance() const {
-	return resistanceForce;
+	return this->resistanceForce;
 }
 
-void Armor::repairArmor(int repairAmount) {
+void Armor::repairArmor(int &repairAmount) {
 	if (repairAmount > 0) {
-		if (hp != maxHp) {
-			hp += repairAmount;
-			if (hp > maxHp) {
-				hp = maxHp;
+		if (this->hp != maxHp) {
+			this->hp += repairAmount;
+			if (this->hp > maxHp) {
+				this->hp = maxHp;
 			}
 		} else {
 			std::cout << "Armor is already at its best health" << std::endl;
@@ -56,10 +56,10 @@ void Armor::repairArmor(int repairAmount) {
 }
 
 void Armor::printStats() {
-	std::cout << "Armor name: " << armorName << std::endl;
-	std::cout << "Armor hp: " << hp << std::endl;
-	std::cout << "Armor max hp: " << maxHp << std::endl;
-	std::cout << "Armor resistance: " << resistanceForce << std::endl;
+	std::cout << "Armor name: " << this->armorName << std::endl;
+	std::cout << "Armor hp: " << this->hp << std::endl;
+	std::cout << "Armor max hp: " << this->maxHp << std::endl;
+	std::cout << "Armor resistance: " << this->resistanceForce << std::endl;
 }
 
 bool Armor::operator!=(const Armor& other) const {
@@ -88,11 +88,11 @@ bool Armor::operator==(const Armor& other) const {
 }
 
 Armor Armor::operator+(const Armor& other) const {
-	std::string newName = this->armorName + ":" + other.armorName;
+	std::string newName = std::string(this->armorName) + ":" + other.armorName;
 	int newHp = this->checkHP() + other.checkHP();
 	int newMaxHp = this->maxHp + other.maxHp;
 	int newResistanceForce = this->getResistance() + other.getResistance();
-	return Armor(newName, newHp, newMaxHp, newResistanceForce);
+	return Armor(newName.c_str(), newHp, newMaxHp, newResistanceForce);
 }
 
 Armor::~Armor() {

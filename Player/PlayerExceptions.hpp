@@ -5,13 +5,13 @@
 
 class PlayerExceptions : public std::exception {
 private:
-    static std::string _msg;
+    static const char* _msg;
 public:
     class weapon_not_found {
     private:
-        std::string msg = _msg;
+        const char* msg = _msg;
     public:
-        weapon_not_found(std::string message);
-        virtual std::string what() const noexcept;
+        weapon_not_found(const char* message);
+        virtual const char* what() const noexcept;
     };
 };
