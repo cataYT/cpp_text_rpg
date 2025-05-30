@@ -2,19 +2,20 @@
 
 #include <iostream>
 
-class Armor {
+class Armor 
+{
 private:
-	int resistanceForce;
-	int hp;
-	int maxHp;
+	uint32_t resistanceForce;
+	uint32_t hp;
+	uint32_t maxHp;
 public:
-	const char* armorName;
-	Armor(const char* armorName, int hp, int maxHp, int resistanceForce);
-	void enhanceArmor(int &newResistanceForce);
-	inline int checkHP() const;
-	inline int getResistance() const;
-	void repairArmor(int &repairAmount);
-	inline void printStats();
+	std::string armorName;
+	Armor(std::string armorName, uint32_t hp, uint32_t maxHp, uint32_t resistanceForce);
+	void enhanceArmor(uint32_t const& newResistanceForce);
+	uint32_t checkHP() const;
+	uint32_t getResistance() const;
+	void repairArmor(uint32_t const& repairAmount);
+	void printStats() const;
 	bool operator!=(const Armor& other) const;
 	bool operator==(const Armor& other) const;
 	Armor operator+(const Armor& other) const;

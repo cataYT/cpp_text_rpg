@@ -1,9 +1,11 @@
 #include "PlayerExceptions.hpp"
 
-PlayerExceptions::weapon_not_found::weapon_not_found(const char* message) {
+PlayerExceptions::weapon_not_found::weapon_not_found(std::string message)
+{
 	this->msg = message;
 }
 
-const char* PlayerExceptions::weapon_not_found::what() const noexcept {
+std::string PlayerExceptions::weapon_not_found::what() const noexcept
+{
 	return msg;
 }

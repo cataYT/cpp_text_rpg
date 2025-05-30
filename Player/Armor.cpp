@@ -1,80 +1,79 @@
 #include "Armor.hpp"
 
-Armor::Armor(const char* armorName = "", int hp = 0, int maxHp = 1, int resistanceForce = 0) :
-	armorName(armorName),
+Armor::Armor(std::string armorName = "", uint32_t hp = 0, uint32_t maxHp = 1, uint32_t resistanceForce = 0) :
+	resistanceForce(resistanceForce),
 	hp(hp),
 	maxHp(maxHp),
-	resistanceForce(resistanceForce)
+	armorName(armorName)
 
 {
-	if (resistanceForce < 0) {
-		throw std::invalid_argument("Resistance force cannot be negative");
-	}
-
-	if (hp < 0) {
-		throw std::invalid_argument("Hp cannot be negative");
-	}
-
-	if (hp > maxHp) {
+	if (hp > maxHp) 
+	{
 		throw std::invalid_argument("Hp cannot be larger than maxHp");
 	}
 
-	if (maxHp <= 0) {
+	if (maxHp <= 0) 
+	{
 		throw std::invalid_argument("maxHp must be positive");
 	}
 }
 
-void Armor::enhanceArmor(int &newResistanceForce) {
-	if (newResistanceForce > 0) {
-		this->resistanceForce += newResistanceForce;
-	} else {
-		std::cout << "Armor cannot be enhanced with negative trait" << std::endl;
-	}
+void Armor::enhanceArmor(uint32_t const& newResistanceForce)
+{
+	this->resistanceForce += newResistanceForce;
 }
 
-int Armor::checkHP() const {
+inline uint32_t Armor::checkHP() const
+{
 	return this->hp;
 }
 
-int Armor::getResistance() const {
+inline uint32_t Armor::getResistance() const
+{
 	return this->resistanceForce;
 }
 
-void Armor::repairArmor(int &repairAmount) {
-	if (repairAmount > 0) {
-		if (this->hp != maxHp) {
-			this->hp += repairAmount;
-			if (this->hp > maxHp) {
-				this->hp = maxHp;
-			}
-		} else {
-			std::cout << "Armor is already at its best health" << std::endl;
+void Armor::repairArmor(uint32_t const& repairAmount)
+{
+	if (this->hp != maxHp)
+	{
+		this->hp += repairAmount;
+		if (this->hp > maxHp)
+		{
+			this->hp = maxHp;
 		}
-	} else {
-		std::cout << "Repair amount cannot be negative" << std::endl;
+	}
+	else
+	{
+		std::cout << "Armor is already at its best health" << std::endl;
 	}
 }
 
-void Armor::printStats() {
+inline void Armor::printStats() const
+{
 	std::cout << "Armor name: " << this->armorName << std::endl;
 	std::cout << "Armor hp: " << this->hp << std::endl;
 	std::cout << "Armor max hp: " << this->maxHp << std::endl;
 	std::cout << "Armor resistance: " << this->resistanceForce << std::endl;
 }
 
-bool Armor::operator!=(const Armor& other) const {
+bool Armor::operator!=(const Armor& other) const
+{
 	if (this->armorName == other.armorName
 		&& this->checkHP() == other.checkHP()
 		&& this->maxHp == other.maxHp
 		&& this->getResistance() == other.getResistance())
 	{
 		return false;
-	} else {
+	} 
+	else
+	{
 		return true;
 	}
 }
 
-bool Armor::operator==(const Armor& other) const {
+bool Armor::operator==(const Armor& other) const 
+{
 	if (this->armorName == other.armorName
 		&& this->checkHP() == other.checkHP()
 		&& this->maxHp == other.maxHp
@@ -82,19 +81,19 @@ bool Armor::operator==(const Armor& other) const {
 	{
 		return true;
 	}
-	else {
+	else
+	{
 		return false;
 	}
 }
 
-Armor Armor::operator+(const Armor& other) const {
-	std::string newName = std::string(this->armorName) + ":" + other.armorName;
+Armor Armor::operator+(const Armor& other) const 
+{
+	std::string newName = this->armorName + ":" + other.armorName;
 	int newHp = this->checkHP() + other.checkHP();
 	int newMaxHp = this->maxHp + other.maxHp;
 	int newResistanceForce = this->getResistance() + other.getResistance();
-	return Armor(newName.c_str(), newHp, newMaxHp, newResistanceForce);
+	return Armor(newName, newHp, newMaxHp, newResistanceForce);
 }
 
-Armor::~Armor() {
-
-}
+Armor::~Armor() = default;

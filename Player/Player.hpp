@@ -7,26 +7,29 @@
 #include <random>
 
 #include "Armor.hpp"
+#include "Weapon.hpp"
 
-class Player {
+class Player 
+{
 private:
-	std::unordered_map<std::string, int> weapons;
+	std::vector<Weapon> weapons;
 	bool isWearingArmor;
 protected:
 	static std::vector<Player*> players;
 public:
-	const char* plrName;
-	int health;
+	std::string plrName;
+	uint32_t health;
 	Armor currentArmor;
-	Player(const char* plrName, int health, std::unordered_map<std::string, int> weapons, Armor armor);
+	Player(std::string const& plrName, uint32_t health, std::vector<Weapon> const& weapons, Armor const& armor);
 	void static removePlayer(Player* plr);
-	inline void getStats() const;
-	inline static size_t getTotalPlayers();
-	void updateWeapons(const char* type, std::pair<std::string, int> &value);
-	void attack(Player &target, std::string weaponName);
-	void heal(Player &target, int &amount);
-	void equipArmor(Armor &armor);
+	std::vector<Weapon> getWeapons() const;
+	void getStats() const;
+	static size_t getTotalPlayers();
+	void updateWeapons(std::string_view const& type, Weapon const& weapon);
+	void attack(Player& target, const std::string& weaponName);
+	void heal(Player const& target, int const& amount) const;
+	void equipArmor(Armor const& armor);
+	friend Player operator+(const Player& lhs, const Player& rhs);
 	static Player* getWinner();
-	Player operator+(const Player &other) const;
 	~Player();
 };
