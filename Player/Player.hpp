@@ -1,35 +1,35 @@
 #pragma once
 
-#include <iostream>
-#include <unordered_map>
+#include <optional>
+#include <functional>
 #include <vector>
-#include <sstream>
-#include <random>
 
 #include "Armor.hpp"
 #include "Weapon.hpp"
 
-class Player 
+class Player
 {
 private:
-	std::vector<Weapon> weapons;
-	bool isWearingArmor;
+	std::vector<Weapon> weapons = {};
+	bool isWearingArmor = false;
+
 protected:
-	static std::vector<Player*> players;
+	static std::vector<std::reference_wrapper<const Player>> players;
+
 public:
-	std::string plrName;
-	uint32_t health;
-	Armor currentArmor;
-	Player(std::string const& plrName, uint32_t health, std::vector<Weapon> const& weapons, Armor const& armor);
-	void static removePlayer(Player* plr);
+	std::string plrName = "";
+	uint32_t health = 0;
+	Armor currentArmor = Armor("", 0, 1, 0);
+	Player(const std::string& plrName, const uint32_t health, const std::vector<Weapon>& weapons, const Armor& armor);
+	void static removePlayer(const Player& plr);
 	std::vector<Weapon> getWeapons() const;
 	void getStats() const;
 	static size_t getTotalPlayers();
-	void updateWeapons(std::string_view const& type, Weapon const& weapon);
+	void updateWeapons(const std::string_view& type, const Weapon& weapon);
 	void attack(Player& target, const std::string& weaponName);
-	void heal(Player const& target, int const& amount) const;
-	void equipArmor(Armor const& armor);
+	void heal(Player& target, const int amount) const;
+	void equipArmor(const Armor& armor);
 	friend Player operator+(const Player& lhs, const Player& rhs);
-	static Player* getWinner();
+	static std::optional<std::reference_wrapper<const Player>> getWinner();
 	~Player();
 };

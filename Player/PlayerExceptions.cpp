@@ -1,6 +1,6 @@
 #include "PlayerExceptions.hpp"
 
-PlayerExceptions::weapon_not_found::weapon_not_found(std::string message)
+PlayerExceptions::weapon_not_found::weapon_not_found(std::string_view message)
 {
 	this->msg = message;
 }
