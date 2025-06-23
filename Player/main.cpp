@@ -3,10 +3,13 @@
 #include "Weapon.hpp"
 #include "PlayerExceptions.hpp"
 
+/**
+* @brief Main function that initializes a player and an enemy, allowing them to attack each other using weapons.
+* 
+* @return 0 on successful execution, or 1 if an error occurs.
+*/
 int main(void) 
 {
-	std::ios::sync_with_stdio(false);
-
 	std::string playerName = "";
 	std::cout << "Enter your player name: ";
 	std::getline(std::cin, playerName);

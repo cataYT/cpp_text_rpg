@@ -9,7 +9,9 @@
 #include "Player.hpp"
 #include "PlayerExceptions.hpp"
 
+/// @brief Static vector to hold all players
 std::vector<std::reference_wrapper<const Player>> Player::players;
+/// @brief Static message for PlayerExceptions 
 std::string PlayerExceptions::_msg = "";
 
 Player::Player(const std::string& plrName, const uint32_t health, const std::vector<Weapon>& weapons, const Armor& armor)
@@ -79,6 +81,14 @@ void Player::updateWeapons(const std::string_view& type, const Weapon& weapon)
     }
 }
 
+/**
+* @brief Calculates the critical hit damage based on weapon damage and armor resistance.
+* 
+* @param[in] weaponDmg:       The damage of the weapon being used.
+* @param[in] armorResistance: The resistance of the target's armor.
+* 
+* @return The calculated damage, which may be increased by a critical hit factor.
+*/
 static double crit(const int weaponDmg, const int armorResistance)
 {
     std::random_device rd;
@@ -101,11 +111,10 @@ void Player::attack(Player& target, const std::string& weaponName)
 
     auto it = std::find_if(this->weapons.begin(), this->weapons.end(), [&](const Weapon& w) {
         return w.getName() == weaponName;
-        });
+    });
 
     if (it == this->weapons.end()) {
-        std::cerr << "Weapon \"" << weaponName << "\" not found in weapons.\n";
-        return;
+		throw PlayerExceptions::weapon_not_found("Weapon not found: " + weaponName);
     }
 
     Weapon& weapon = *it;
