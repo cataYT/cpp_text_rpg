@@ -39,16 +39,16 @@ void Armor::repairArmor(const uint32_t repairAmount)
 			this->hp = maxHp;
 		}
 	} else {
-		std::cout << "Armor is already at its best health" << std::endl;
+		std::println("Armor is already at its best health");
 	}
 }
 
 inline void Armor::printStats() const
 {
-	std::cout << "Armor name: " << this->armorName << std::endl;
-	std::cout << "Armor hp: " << this->hp << std::endl;
-	std::cout << "Armor max hp: " << this->maxHp << std::endl;
-	std::cout << "Armor resistance: " << this->resistanceForce << std::endl;
+	std::println("Armor name: {}", this->armorName);
+	std::println("Armor hp: {}", this->hp);
+	std::println("Armor max hp: {}", this->maxHp);
+	std::println("Armor resistance: {}", this->resistanceForce);
 }
 
 bool Armor::operator!=(const Armor& other) const

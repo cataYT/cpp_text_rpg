@@ -11,25 +11,25 @@
 int main(void) 
 {
 	std::string playerName = "";
-	std::cout << "Enter your player name: ";
+	std::print("Enter your player name: ");
 	std::getline(std::cin, playerName);
 
 	std::string weaponName = "";
-	std::cout << "Enter weapon name: ";
+	std::print("Enter weapon name: ");
 	std::getline(std::cin, weaponName);
 
 	uint32_t weaponDamageInt = 0;
 	std::string weaponDamage = "";
-	std::cout << "Enter weapon damage: ";
+	std::print("Enter weapon damage: ");
 	std::cin >> weaponDamage;
 
 	try {
 		weaponDamageInt = std::stoi(weaponDamage);
 	} catch (std::invalid_argument&) {
-		std::cerr << "Invalid input. Please enter a valid integer." << std::endl;
+		std::println(std::cerr, "Invalid input. Please enter a valid integer.");
 		return 1;
 	} catch (std::out_of_range&) {
-		std::cerr << "Input out of range for integer." << std::endl;
+		std::println(std::cerr, "Input out of range for integer.");
 		return 1;
 	}
 
@@ -50,11 +50,11 @@ int main(void)
 			Player::removePlayer(cata);
 		}
 	} catch (PlayerExceptions::weapon_not_found& e) {
-		std::cout << "Caught exception on attack: " << e.what() << std::endl;
+		std::println("Caught exception on attack: {}", e.what());
 	}
 
 	std::string weaponUse = "";
-	std::cout << "Enter the name of the weapon you want to use: ";
+	std::print("Enter the name of the weapon you want to use: ");
 	std::getline(std::cin, weaponUse);
 
 	try {
@@ -63,13 +63,13 @@ int main(void)
 			Player::removePlayer(enemy);
 		}
 	} catch (PlayerExceptions::weapon_not_found& e) {
-		std::cout << "Caught exception on attack: " << e.what() << std::endl;
+		std::println("Caught exception on attack: {}", e.what());
 	}
 
 	if (auto winner = Player::getWinner()) {  // simpler than .has_value()
-		std::cout << winner->get().plrName << " has won!" << std::endl;
+		std::println("{} has won!", winner->get().plrName);
 	} else {
-		std::cout << "No one won!" << std::endl;
+		std::println("No one won!");
 	}
 
 	return 0;
